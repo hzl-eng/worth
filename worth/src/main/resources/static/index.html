@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#020611" />
+  <title>职得 WORTH — Move as one</title>
+  <style>
+    :root { color-scheme:dark; --blue:#63aaff; --ink:#eef6ff; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; min-height:100%; background:#020611; color:var(--ink); font-family:Inter,"Microsoft YaHei UI","PingFang SC","Noto Sans SC",ui-sans-serif,system-ui,sans-serif; }
+    body { overflow-x:hidden; overflow-y:auto; scroll-behavior:smooth; }
+    #scene { position:fixed; inset:0; width:100%; height:100%; }
+    .grain { position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.1; mix-blend-mode:screen; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E"); }
+    .ui { position:relative; z-index:2; min-height:100vh; padding:30px 4vw 28px; display:flex; flex-direction:column; justify-content:space-between; pointer-events:none; }
+    .wordmark-field { position:absolute; z-index:0; left:0; bottom:12vh; width:100%; text-align:center; white-space:nowrap; font-family:Inter,Arial,sans-serif; font-size:clamp(150px,25vw,420px); line-height:.78; font-weight:750; letter-spacing:-.075em; color:rgba(71,127,207,.075); pointer-events:none; user-select:none; animation:wordmark-drift 28s ease-in-out infinite alternate; transition:color 1.5s ease,text-shadow 1.5s ease; }
+    .wordmark-field.is-clear { color:rgba(92,158,255,.25); text-shadow:0 0 34px rgba(45,112,255,.12); }
+    @keyframes wordmark-drift { from { transform:translateX(-1.5vw); } to { transform:translateX(1.5vw); } }
+    header,footer { display:flex; align-items:center; justify-content:space-between; gap:20px; }
+    .brand { display:flex; align-items:center; gap:13px; font-size:15px; font-weight:700; letter-spacing:.28em; text-transform:uppercase; color:#f5f8ff; }
+    .brand-mark { width:31px; height:31px; flex:none; }
+    .brand span { color:#5ca8ff; }
+    .pill { border:1px solid rgba(166,207,255,.22); border-radius:999px; padding:11px 17px; color:#a8bfd9; font-size:11px; letter-spacing:.16em; text-transform:uppercase; backdrop-filter:blur(12px); background:rgba(3,12,30,.3); }
+    main { max-width:720px; margin-top:auto; margin-bottom:auto; }
+    .eyebrow { display:flex; align-items:center; gap:12px; color:#79baff; font-size:11px; letter-spacing:.22em; text-transform:uppercase; }
+    .eyebrow i { width:28px; height:1px; background:#69b1ff; box-shadow:0 0 16px #409bff; }
+    h1 { margin:22px 0 16px; font-family:"MiSans","HarmonyOS Sans SC","Microsoft YaHei UI","PingFang SC","Noto Sans SC",sans-serif; font-size:clamp(104px,11vw,172px); line-height:1; letter-spacing:.015em; font-weight:300; }
+    h1 em { color:#8fc5ff; font-style:normal; font-weight:300; text-shadow:0 0 36px rgba(65,153,255,.38); }
+    .tagline { max-width:640px; margin:0 0 16px; color:#b9cce3; font-size:clamp(20px,1.7vw,26px); line-height:1.7; letter-spacing:.06em; font-weight:350; }
+    .desc { max-width:560px; color:#8da3bd; font-size:18px; line-height:1.75; letter-spacing:.08em; }
+    .cta { pointer-events:auto; margin-top:28px; display:inline-flex; align-items:center; gap:13px; padding:16px 22px; border-radius:999px; border:1px solid rgba(145,201,255,.42); color:#f2f8ff; font-size:14px; letter-spacing:.12em; text-transform:uppercase; background:linear-gradient(135deg,rgba(76,152,255,.28),rgba(5,17,42,.34)); box-shadow:0 0 30px rgba(53,140,255,.16); text-decoration:none; transition:.25s ease; }
+    .cta:hover { transform:translateY(-2px); border-color:#c8e6ff; box-shadow:0 0 38px rgba(53,140,255,.4); }
+    .cta.secondary { margin-left:10px; background:rgba(4,13,30,.55); box-shadow:none; }
+    .dot { width:7px; height:7px; border-radius:50%; background:#d8efff; box-shadow:0 0 14px #79bbff; }
+    footer { color:#788da9; font-size:10px; letter-spacing:.18em; text-transform:uppercase; }
+    .status { display:flex; align-items:center; gap:8px; }
+    .status b { width:6px; height:6px; border-radius:50%; background:#75c6ff; box-shadow:0 0 12px #75c6ff; }
+    button { font:inherit; cursor:pointer; }
+    .flow-dialog { position:relative; width:min(620px,calc(100% - 36px)); padding:42px; border:1px solid rgba(145,201,255,.28); background:rgba(4,12,27,.97); color:#eef6ff; box-shadow:0 24px 90px rgba(0,0,0,.55); }
+    .flow-dialog::backdrop { background:rgba(0,4,12,.72); backdrop-filter:blur(8px); }
+    .flow-dialog h2 { font-size:clamp(28px,5vw,46px); font-weight:450; letter-spacing:-.06em; margin:22px 0 28px; }
+    .flow-dialog ol { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:1fr 1fr; gap:0 22px; }
+    .flow-dialog li { padding:16px 0; border-top:1px solid rgba(166,207,255,.17); color:#d6e2f1; font-size:14px; }
+    .flow-dialog li span { color:#74b6ff; font-size:10px; letter-spacing:.14em; margin-right:14px; }
+    .close-flow { position:absolute; top:14px; right:16px; width:36px; height:36px; border:0; border-radius:50%; background:rgba(156,188,224,.12); color:#eef6ff; font-size:25px; line-height:1; }
+    .auth-tabs { display:flex; gap:22px; margin:24px 0 20px; border-bottom:1px solid rgba(166,207,255,.18); }
+    .auth-tab { padding:0 0 12px; color:#7f91aa; border:0; border-bottom:2px solid transparent; background:none; font-size:14px; }
+    .auth-tab[aria-selected="true"] { color:#eef6ff; border-bottom-color:#68aaff; }
+    .auth-form { display:grid; gap:14px; }
+    .auth-form [hidden] { display:none; }
+    .auth-form label { display:grid; gap:8px; color:#a9bdd7; font-size:12px; }
+    .auth-form input,.auth-form select { width:100%; padding:13px 14px; color:#eef6ff; background:rgba(146,177,215,.08); border:1px solid rgba(166,207,255,.2); border-radius:4px; outline:none; }
+    .auth-form input:focus,.auth-form select:focus { border-color:#68aaff; }
+    .auth-form select option { color:#101827; }
+    .auth-submit { width:100%; justify-content:center; border:0; margin-top:5px; }
+    .auth-note { min-height:18px; color:#8faecc; font-size:12px; line-height:1.5; margin:0; }
+    .jobs-section { position:relative; z-index:2; min-height:100vh; padding:clamp(34px,7vw,92px) 7vw 64px; background:linear-gradient(180deg,rgba(3,10,23,.72),rgba(2,7,17,.96) 18%,#020711); border-top:1px solid rgba(114,174,239,.16); }
+    .jobs-wrap { max-width:1180px; margin:0 auto; }
+    .about-block { max-width:960px; margin:0 auto 76px; }
+    .about-block h2 { margin:18px 0 14px; font-size:clamp(36px,6vw,68px); line-height:1.08; font-weight:350; letter-spacing:-.055em; }
+    .about-lead { max-width:760px; color:#b9cce3; font-size:clamp(18px,2vw,24px); line-height:1.8; }
+    .about-cards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-top:32px; }
+    .about-card { min-height:170px; padding:24px; border:1px solid rgba(143,190,244,.16); background:linear-gradient(145deg,rgba(15,31,56,.72),rgba(4,12,26,.58)); }
+    .about-card span { color:#73b9ff; font-size:11px; letter-spacing:.16em; }
+    .about-card h3 { margin:16px 0 8px; font-size:20px; font-weight:500; }
+    .about-card p { margin:0; color:#93a9c5; font-size:14px; line-height:1.8; }
+    .jobs-gate { min-height:210px; display:grid; place-items:center; padding:28px; border:1px solid rgba(143,190,244,.18); background:rgba(8,20,39,.58); text-align:center; }
+    .jobs-gate h3 { margin:0 0 8px; font-size:24px; font-weight:450; }
+    .jobs-gate p { margin:0; color:#93a9c5; line-height:1.8; }
+    .jobs-gate .cta { margin-top:20px; }
+    [hidden] { display:none !important; }
+    @media(max-width:650px) { .about-cards { grid-template-columns:1fr; } .about-block { margin-bottom:54px; } }
+    .jobs-heading { display:flex; justify-content:space-between; align-items:end; gap:24px; margin-bottom:34px; }
+    .jobs-heading h2 { margin:18px 0 8px; font-size:clamp(38px,6vw,72px); line-height:1; font-weight:350; letter-spacing:-.065em; }
+    .jobs-heading p { color:#93a9c5; margin:0; line-height:1.7; font-size:14px; }
+    .jobs-total { color:#8cbfff; font-size:12px; letter-spacing:.12em; white-space:nowrap; }
+    .job-search { display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:10px; padding:14px; margin-bottom:24px; border:1px solid rgba(143,190,244,.18); background:rgba(8,20,39,.72); backdrop-filter:blur(18px); }
+    .job-search input { min-width:0; width:100%; padding:13px 14px; border:1px solid rgba(143,190,244,.13); border-radius:3px; color:#eaf4ff; outline:none; background:rgba(117,155,204,.07); font:inherit; font-size:13px; }
+    .job-search input::placeholder { color:#7388a5; }
+    .job-search input:focus { border-color:rgba(104,170,255,.65); }
+    .job-search .cta { margin:0; justify-content:center; padding:12px 19px; white-space:nowrap; }
+    .jobs-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+    .job-card { min-height:220px; padding:22px; border:1px solid rgba(143,190,244,.15); background:linear-gradient(145deg,rgba(15,31,56,.8),rgba(4,12,26,.76)); transition:border-color .2s,transform .2s,background .2s; }
+    .job-card:hover { transform:translateY(-3px); border-color:rgba(107,177,255,.48); background:linear-gradient(145deg,rgba(20,44,78,.88),rgba(5,14,29,.88)); }
+    .job-source { color:#73b9ff; font-size:10px; letter-spacing:.16em; text-transform:uppercase; }
+    .job-card h3 { margin:16px 0 8px; color:#f0f6ff; font-size:19px; line-height:1.45; font-weight:500; }
+    .job-company { color:#a9bdd7; font-size:13px; }
+    .job-meta { display:flex; flex-wrap:wrap; gap:8px; margin:17px 0; }
+    .job-meta span { padding:5px 8px; border:1px solid rgba(143,190,244,.14); color:#94aac5; font-size:11px; }
+    .job-card-bottom { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:auto; }
+    .job-salary { color:#9bcaff; font-size:13px; }
+    .job-detail-button { padding:7px 0; border:0; color:#d8eaff; background:none; font-size:12px; }
+    .job-detail-button:hover { color:#75b8ff; }
+    .jobs-state { grid-column:1/-1; min-height:180px; display:grid; place-items:center; padding:24px; border:1px solid rgba(143,190,244,.12); color:#8ea5c0; text-align:center; line-height:1.8; }
+    .jobs-state.error { color:#ffb9c4; }
+    .jobs-pagination { display:flex; justify-content:center; align-items:center; gap:18px; margin-top:28px; color:#8ea5c0; font-size:12px; }
+    .jobs-pagination button { padding:9px 14px; border:1px solid rgba(143,190,244,.2); color:#dcecff; background:rgba(8,20,39,.65); }
+    .jobs-pagination button:disabled { opacity:.38; cursor:not-allowed; }
+    .job-detail { width:min(760px,calc(100% - 28px)); max-height:min(82vh,850px); overflow:auto; }
+    .job-detail h2 { margin-bottom:8px; }
+    .job-detail-company { color:#a9bdd7; margin:0 0 24px; }
+    .job-detail-description { color:#c0d0e3; white-space:pre-wrap; line-height:1.85; font-size:14px; }
+    .job-detail-link { display:inline-flex; margin-top:24px; color:#8fc5ff; text-decoration:none; }
+    .job-detail-link:hover { text-decoration:underline; }
+    @media(max-width:900px) { .job-search{grid-template-columns:repeat(2,minmax(0,1fr))}.jobs-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+    @media(max-width:650px) { .ui{padding:24px 24px 20px}.pill{display:none}.wordmark-field{bottom:19vh;font-size:25vw;letter-spacing:-.06em}main{margin-bottom:8vh}h1{font-size:clamp(72px,14vw,98px)}.tagline{font-size:clamp(18px,4.5vw,22px)}.desc{max-width:330px;font-size:16px}.status{font-size:9px}.flow-dialog{padding:35px 24px 25px}.flow-dialog ol{grid-template-columns:1fr}.cta.secondary{margin-left:0}.jobs-section{padding:48px 22px}.jobs-heading{display:block}.jobs-total{display:block;margin-top:18px}.job-search,.jobs-grid{grid-template-columns:1fr}.job-search .cta{width:100%}.job-card{min-height:190px} }
+    @media(prefers-reduced-motion:reduce) { .cta,.wordmark-field{transition:none;animation:none} }
+  </style>
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+</head>
+<body>
+  <canvas id="scene"></canvas><div class="grain"></div>
+  <div class="ui">
+    <header><div class="brand"><svg class="brand-mark" viewBox="0 0 100 100" role="img" aria-label="职得标志"><path d="M18 75 50 18 82 75H18Z" fill="none" stroke="#1d5cff" stroke-width="8" stroke-linejoin="round"/><circle cx="50" cy="17" r="14" fill="#1d5cff"/><circle cx="17" cy="77" r="14" fill="#1d5cff"/><circle cx="83" cy="77" r="14" fill="#1d5cff"/></svg>职<span>得</span> WORTH</div><div class="pill">学生 · 企业 · 高校</div></header>
+    <div class="wordmark-field" aria-hidden="true">WORTH</div>
+    <main>
+      <h1>职<em>得</em></h1>
+      <p class="tagline">能力职得其所，未来值得期待。</p>
+      <div class="desc">连接能力与机会</div>
+      <button class="cta" id="show-auth" type="button"><span class="dot"></span> 注册 / 登录 <span>↗</span></button>
+      <a class="cta secondary" href="#about">了解我们 <span>↓</span></a>
+    </main>
+    <footer><div>© 2026 职得 WORTH</div><div class="status"><b></b> 岗位需求 · 能力成长</div></footer>
+  </div>
+  <section class="jobs-section" id="jobs" aria-labelledby="jobs-title">
+    <div class="jobs-wrap">
+      <div class="about-block" id="about">
+        <div class="eyebrow"><i></i> ABOUT WORTH</div>
+        <h2>让能力与机会，<br>在这里相遇。</h2>
+        <p class="about-lead">职得连接学生、高校与企业，让人才能力被看见，让真实机会找到合适的人。以更清晰的信息和更顺畅的连接，陪伴每一次成长与选择。</p>
+        <div class="about-cards">
+          <article class="about-card"><span>FOR TALENT</span><h3>看见自己的可能</h3><p>发现适合的岗位与成长方向，让能力找到施展的舞台。</p></article>
+          <article class="about-card"><span>FOR EMPLOYERS</span><h3>连接合适的人才</h3><p>更有效地展示岗位需求，遇见真正匹配的求职者。</p></article>
+          <article class="about-card"><span>FOR UNIVERSITIES</span><h3>让培养贴近未来</h3><p>连接校园人才培养与产业需求，助力人才发展。</p></article>
+        </div>
+      </div>
+      <div class="jobs-heading">
+        <div><div class="eyebrow"><i></i> OPPORTUNITIES, ALIGNED</div><h2 id="jobs-title">探索职得机会</h2><p>登录后即可搜索并查看岗位信息。</p></div>
+        <span class="jobs-total" id="jobs-total" aria-live="polite">登录后开放</span>
+      </div>
+      <div class="jobs-gate" id="jobs-gate">
+        <div><h3>登录后，发现适合你的机会</h3><p>职位搜索与岗位详情仅在登录后展示。</p><button class="cta" id="jobs-login" type="button"><span class="dot"></span> 注册 / 登录 <span>↗</span></button></div>
+      </div>
+      <div id="jobs-content" hidden>
+        <form class="job-search" id="job-search">
+          <input name="keyword" type="search" placeholder="搜索职位、企业或技能" aria-label="搜索职位、企业或技能">
+          <input name="location" type="search" placeholder="城市" aria-label="城市">
+          <input name="category" type="search" placeholder="岗位类别" aria-label="岗位类别">
+          <input name="degree" type="search" placeholder="学历要求" aria-label="学历要求">
+          <button class="cta" type="submit"><span class="dot"></span> 搜索</button>
+        </form>
+        <div class="jobs-grid" id="jobs-grid" aria-live="polite"><div class="jobs-state">正在加载职位…</div></div>
+        <div class="jobs-pagination"><button id="jobs-prev" type="button" disabled>← 上一页</button><span id="jobs-page">第 1 页</span><button id="jobs-next" type="button" disabled>下一页 →</button></div>
+      </div>
+    </div>
+  </section>
+  <dialog class="flow-dialog job-detail" id="job-detail">
+    <button class="close-flow" type="button" aria-label="关闭">×</button>
+    <div class="eyebrow"><i></i> JOB DETAIL</div><h2 id="job-detail-title">职位详情</h2>
+    <p class="job-detail-company" id="job-detail-company"></p>
+    <p class="job-detail-description" id="job-detail-description"></p>
+    <a class="job-detail-link" id="job-detail-link" target="_blank" rel="noopener noreferrer" hidden>前往原始招聘页面 ↗</a>
+  </dialog>
+  <dialog class="flow-dialog" id="auth-dialog"><button class="close-flow" type="button" aria-label="关闭">×</button><div class="eyebrow"><i></i> WORTH ACCOUNT</div><h2>Welcome to WORTH</h2><div class="auth-tabs" role="tablist"><button class="auth-tab" type="button" role="tab" aria-selected="true" data-mode="login">登录</button><button class="auth-tab" type="button" role="tab" aria-selected="false" data-mode="register">注册</button></div><form class="auth-form"><label>手机号或邮箱<input name="account" autocomplete="username" placeholder="请输入手机号或邮箱" required></label><label class="register-only" hidden>你的身份<select name="role"><option>学生</option><option>企业招聘方</option><option>高校</option></select></label><label>密码<input name="password" type="password" autocomplete="current-password" placeholder="请输入密码" required></label><button class="cta auth-submit" type="submit">登录 <span>↗</span></button><p class="auth-note" aria-live="polite">账号服务接入后即可使用。</p></form></dialog>
+  <script>
+    (()=>{
+      const api='http://localhost:8080/api/v1/jobs';
+      const form=document.querySelector('#job-search'),grid=document.querySelector('#jobs-grid');
+      const total=document.querySelector('#jobs-total'),pageLabel=document.querySelector('#jobs-page');
+      const prev=document.querySelector('#jobs-prev'),next=document.querySelector('#jobs-next');
+      const detail=document.querySelector('#job-detail'),pageSize=9;
+      let page=0,totalPages=0,filters={};
+      const text=(tag,className,value)=>{const node=document.createElement(tag);if(className)node.className=className;if(value!==undefined)node.textContent=value;return node};
+      function showState(message,isError=false){grid.replaceChildren(text('div',`jobs-state${isError?' error':''}`,message));}
+      function renderJob(job){
+        const card=text('article','job-card');
+        card.append(text('div','job-source',job.source||'职得岗位'));
+        card.append(text('h3','',job.title||'未命名职位'));
+        card.append(text('div','job-company',job.org||'企业信息待补充'));
+        const meta=text('div','job-meta');
+        [job.location,job.category,job.degree,job.postedDate].filter(Boolean).slice(0,4).forEach(value=>meta.append(text('span','',value)));
+        card.append(meta);
+        const bottom=text('div','job-card-bottom');bottom.append(text('span','job-salary',job.salary||'薪资面议'));
+        const button=text('button','job-detail-button','查看详情 ↗');button.type='button';button.addEventListener('click',()=>loadDetail(job.id));
+        bottom.append(button);card.append(bottom);return card;
+      }
+      async function loadJobs(){
+        showState('正在加载职位…');total.textContent='正在连接职位库…';
+        const params=new URLSearchParams({page:String(page),size:String(pageSize)});
+        Object.entries(filters).forEach(([key,value])=>{if(value)params.set(key,value)});
+        try{
+          const response=await fetch(`${api}?${params.toString()}`,{headers:{Accept:'application/json'}});
+          if(!response.ok)throw new Error(`职位服务返回 ${response.status}`);
+          const result=await response.json(),jobs=Array.isArray(result.content)?result.content:[];
+          totalPages=Number(result.totalPages)||0;total.textContent=`${Number(result.totalElements)||0} 个机会`;
+          pageLabel.textContent=`第 ${totalPages?Math.min(page+1,totalPages):0} / ${totalPages} 页`;
+          prev.disabled=page<=0;next.disabled=page+1>=totalPages;
+          if(!jobs.length){showState('暂时没有符合条件的职位。试试减少筛选条件，或稍后导入职位数据。');return}
+          grid.replaceChildren(...jobs.map(renderJob));
+        }catch(error){
+          total.textContent='职位服务暂不可用';pageLabel.textContent='';prev.disabled=true;next.disabled=true;
+          showState('暂时无法连接职位服务。请确认 IDEA 中的 WorthApplication 正在运行，然后点击搜索重试。',true);
+        }
+      }
+      async function loadDetail(id){
+        if(!id)return;
+        document.querySelector('#job-detail-title').textContent='正在加载…';
+        document.querySelector('#job-detail-company').textContent='';
+        document.querySelector('#job-detail-description').textContent='';
+        const link=document.querySelector('#job-detail-link');link.hidden=true;detail.showModal();
+        try{
+          const response=await fetch(`${api}/${encodeURIComponent(id)}`,{headers:{Accept:'application/json'}});
+          if(!response.ok)throw new Error('职位详情加载失败');
+          const job=await response.json();
+          document.querySelector('#job-detail-title').textContent=job.title||'职位详情';
+          document.querySelector('#job-detail-company').textContent=[job.org,job.location,job.salary,job.degree].filter(Boolean).join(' · ');
+          document.querySelector('#job-detail-description').textContent=job.description||'暂无职位描述。';
+          if(typeof job.url==='string'&&/^https?:\/\//i.test(job.url)){link.href=job.url;link.hidden=false}
+        }catch(error){document.querySelector('#job-detail-description').textContent='暂时无法读取职位详情，请稍后重试。'}
+      }
+      form.addEventListener('submit',event=>{event.preventDefault();filters=Object.fromEntries(new FormData(form));page=0;loadJobs()});
+      prev.addEventListener('click',()=>{if(page>0){page--;loadJobs()}});
+      next.addEventListener('click',()=>{if(page+1<totalPages){page++;loadJobs()}});
+      detail.querySelector('.close-flow').addEventListener('click',()=>detail.close());
+      detail.addEventListener('click',event=>{if(event.target===detail)detail.close()});
+      const unlocked=sessionStorage.getItem('worth-demo-login')==='true';
+      document.querySelector('#jobs-gate').hidden=unlocked;
+      document.querySelector('#jobs-content').hidden=!unlocked;
+      if(unlocked)loadJobs();
+      document.addEventListener('worth:authenticated',loadJobs);
+    })();
+  </script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { EffectComposer } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/postprocessing/UnrealBloomPass.js';
+    const canvas=document.querySelector('#scene');
+    const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;
+    const scene=new THREE.Scene();scene.background=new THREE.Color(0x020611);scene.fog=new THREE.FogExp2(0x020611,.035);
+    const camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,.1,100);camera.position.set(0,1.3,13);camera.lookAt(0,0,0);
+    const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),.68,.6,.22));
+    scene.add(new THREE.HemisphereLight(0x98caff,0x02030a,1.1));const key=new THREE.DirectionalLight(0xb9ddff,4.2);key.position.set(-5,8,6);key.castShadow=true;key.shadow.mapSize.set(2048,2048);scene.add(key);const rim=new THREE.PointLight(0x1678ff,16,18);rim.position.set(4,1,3);scene.add(rim);
+    const ballColors=[0x9ed7ff,0x4c9cff,0xc9efff],balls=[];
+    const paths=[new THREE.CatmullRomCurve3([new THREE.Vector3(-11,4.8,2.2),new THREE.Vector3(-8,3.2,1.8),new THREE.Vector3(-6,1.7,.6),new THREE.Vector3(-4,-1.2,.1),new THREE.Vector3(-1.1,.3,.15),new THREE.Vector3(0,0,.2)]),new THREE.CatmullRomCurve3([new THREE.Vector3(11,4.5,1.4),new THREE.Vector3(8,2.8,1.1),new THREE.Vector3(5.7,1.3,.4),new THREE.Vector3(3.5,-.9,.1),new THREE.Vector3(1,.25,.15),new THREE.Vector3(0,0,.2)]),new THREE.CatmullRomCurve3([new THREE.Vector3(-8,-4.6,1.8),new THREE.Vector3(-5,-3,1.4),new THREE.Vector3(-3.3,-1.8,.4),new THREE.Vector3(-1.7,-.6,.15),new THREE.Vector3(-.3,.1,.2),new THREE.Vector3(0,0,.2)])];
+    paths.forEach((path,i)=>{const material=new THREE.MeshStandardMaterial({color:ballColors[i],emissive:ballColors[i],emissiveIntensity:3.8,metalness:.15,roughness:.14});const mesh=new THREE.Mesh(new THREE.SphereGeometry(.2,32,32),material);mesh.castShadow=true;scene.add(mesh);balls.push({mesh,path,phase:i*.055});const trail=new THREE.Line(new THREE.BufferGeometry().setFromPoints(path.getPoints(80)),new THREE.LineBasicMaterial({color:ballColors[i],transparent:true,opacity:.28}));scene.add(trail)});
+    const impactGlow=new THREE.PointLight(0x6db8ff,0,7);impactGlow.position.set(0,-1.35,.4);scene.add(impactGlow);
+    const drop=new THREE.Mesh(new THREE.SphereGeometry(.22,40,40),new THREE.MeshPhysicalMaterial({color:0x9ed7ff,emissive:0x318bff,emissiveIntensity:2.4,metalness:.18,roughness:.08,transparent:true,opacity:0,clearcoat:1}));drop.visible=false;scene.add(drop);
+    const waveVertex=`varying vec2 vUv;uniform float uProgress;void main(){vUv=uv;vec3 p=position;float r=length(uv-vec2(.5))*2.0;float crest=exp(-abs(r-uProgress)*10.0);float wake=exp(-abs(r-(uProgress-.18))*8.0);p.z+=sin((r-uProgress)*62.0)*.03*crest+sin((r-(uProgress-.18))*54.0)*.012*wake;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);}`;
+    const waveFragment=`varying vec2 vUv;uniform float uProgress;uniform float uOpacity;uniform vec3 uColor;void main(){float r=length(vUv-vec2(.5))*2.0;float front=exp(-pow((r-uProgress)*48.0,2.0));float ring1=exp(-pow((r-(uProgress-.105))*40.0,2.0))*.34;float ring2=exp(-pow((r-(uProgress-.21))*37.0,2.0))*.23;float ring3=exp(-pow((r-(uProgress-.315))*34.0,2.0))*.16;float ring4=exp(-pow((r-(uProgress-.42))*31.0,2.0))*.1;float soft=exp(-pow((r-uProgress)*13.0,2.0))*.12;float edge=1.0-smoothstep(.92,1.0,r);float alpha=(front+ring1+ring2+ring3+ring4+soft)*uOpacity*edge;vec3 color=mix(uColor,vec3(.78,.92,1.0),front*.58);gl_FragColor=vec4(color,alpha);}`;
+    function makeWaterWave(maxRadius,color,duration){const material=new THREE.ShaderMaterial({uniforms:{uProgress:{value:0},uOpacity:{value:0},uColor:{value:new THREE.Color(color)}},vertexShader:waveVertex,fragmentShader:waveFragment,transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,toneMapped:false});const mesh=new THREE.Mesh(new THREE.PlaneGeometry(2,2,64,64),material);mesh.scale.set(maxRadius,maxRadius,1);mesh.visible=false;scene.add(mesh);return{mesh,material,duration,age:0,maxRadius,active:false}}
+    const collisionWave=makeWaterWave(10.5,0x67b9ff,2.6);collisionWave.mesh.position.set(0,-1.35,.38);
+    const pointerWaves=Array.from({length:8},()=>makeWaterWave(2.4,0x8ecbff,1.6));let pointerWaveIndex=0,lastPointerTime=0,lastPointerPosition=null;
+    const raycaster=new THREE.Raycaster(),pointerNdc=new THREE.Vector2(),pointerPlane=new THREE.Plane(new THREE.Vector3(0,0,1),0),pointerHit=new THREE.Vector3();
+    addEventListener('pointermove',event=>{if(event.pointerType&&event.pointerType!=='mouse')return;const now=performance.now();if(now-lastPointerTime<120)return;if(lastPointerPosition&&Math.hypot(event.clientX-lastPointerPosition.x,event.clientY-lastPointerPosition.y)<75)return;lastPointerTime=now;lastPointerPosition={x:event.clientX,y:event.clientY};pointerNdc.set(event.clientX/innerWidth*2-1,-(event.clientY/innerHeight)*2+1);raycaster.setFromCamera(pointerNdc,camera);if(!raycaster.ray.intersectPlane(pointerPlane,pointerHit))return;const wave=pointerWaves[pointerWaveIndex++%pointerWaves.length];wave.mesh.position.copy(pointerHit);wave.mesh.position.z=.12;wave.age=0;wave.active=true;wave.mesh.visible=true;wave.material.uniforms.uProgress.value=.01;wave.material.uniforms.uOpacity.value=.2});
+    const wordmark=document.querySelector('.wordmark-field');const clock=new THREE.Clock();let time=0;
+    function animate(){requestAnimationFrame(animate);const dt=clock.getDelta();time+=dt;const cycle=Math.min(time,10.3),progress=Math.min(1,cycle/6.5),ease=1-Math.pow(1-progress,1.75);balls.forEach((ball,i)=>{const p=Math.min(1,ease+ball.phase);ball.mesh.position.copy(ball.path.getPointAt(p));if(time<8.8)ball.mesh.rotation.y+=dt*2;const merge=Math.max(0,Math.min(1,(cycle-6.15)/.42));ball.mesh.scale.setScalar(1-merge)});
+      const splashTime=cycle-6.42,fall=Math.max(0,Math.min(1,splashTime/.62)),fallEase=fall*fall*(3-2*fall);drop.visible=splashTime>=-.18&&cycle<8.85;drop.material.opacity=drop.visible?Math.max(0,1-Math.max(0,splashTime-1.25)/.65):0;drop.position.set(0,.12-fallEase*1.52,.4);const stretch=splashTime<.18?1+Math.max(0,1-splashTime/.18)*.65:splashTime<.62?1-.35*fall:1;drop.scale.set(.82,stretch,.82);
+      const collisionAge=splashTime-.62;collisionWave.active=collisionAge>=0&&collisionAge<collisionWave.duration;if(collisionWave.active){collisionWave.age=collisionAge;collisionWave.mesh.visible=true;collisionWave.material.uniforms.uProgress.value=Math.max(.005,collisionAge/collisionWave.duration);collisionWave.material.uniforms.uOpacity.value=.46*(1-collisionAge/collisionWave.duration)}else collisionWave.mesh.visible=false;
+      pointerWaves.forEach(wave=>{if(!wave.active)return;wave.age+=dt;if(wave.age>=wave.duration){wave.active=false;wave.mesh.visible=false;return}const p=wave.age/wave.duration;wave.material.uniforms.uProgress.value=Math.max(.005,p);wave.material.uniforms.uOpacity.value=.2*(1-p)});
+      const impact=cycle>6.95;impactGlow.intensity=impact?Math.max(0,2.8-(cycle-6.95)*1.5):0;if(cycle>=6.5)wordmark.classList.add('is-clear');camera.position.x+=((innerWidth/innerHeight<.8?.7:0)-camera.position.x)*.02;camera.lookAt(0,0,0);composer.render()}
+    animate();addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()});
+  </script>
+  <script>
+    const authDialog=document.querySelector('#auth-dialog'),authForm=authDialog.querySelector('form'),authSubmit=authDialog.querySelector('.auth-submit'),roleField=authDialog.querySelector('.register-only'),authNote=authDialog.querySelector('.auth-note');let authMode='login';document.querySelector('#show-auth').addEventListener('click',()=>authDialog.showModal());document.querySelector('#jobs-login').addEventListener('click',()=>authDialog.showModal());authDialog.querySelector('.close-flow').addEventListener('click',()=>authDialog.close());authDialog.addEventListener('click',event=>{if(event.target===authDialog)authDialog.close()});authDialog.querySelectorAll('.auth-tab').forEach(tab=>tab.addEventListener('click',()=>{authMode=tab.dataset.mode;authDialog.querySelectorAll('.auth-tab').forEach(item=>item.setAttribute('aria-selected',String(item===tab)));roleField.hidden=authMode!=='register';authSubmit.innerHTML=`${authMode==='login'?'登录':'创建账号'} <span>↗</span>`;authNote.textContent='演示模式：当前表单尚未连接真实账号服务。'}));authForm.addEventListener('submit',event=>{event.preventDefault();sessionStorage.setItem('worth-demo-login','true');authDialog.close();document.querySelector('#jobs-gate').hidden=true;document.querySelector('#jobs-content').hidden=false;document.querySelector('#jobs').scrollIntoView({behavior:'smooth'});document.dispatchEvent(new Event('worth:authenticated'))});
+  </script>
+</body>
+</html>

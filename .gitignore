@@ -1,0 +1,24 @@
+# Local credentials and environment
+.env
+.env.*
+!.env.example
+**/application.properties
+**/application-local.properties
+
+# Generated files and local IDE state
+**/target/
+**/.idea/
+**/.venv/
+**/__pycache__/
+*.py[cod]
+
+# Scraped data exports
+zhide-spider/*.csv
+zhide-spider/*.json
+
+# Local reference documents and media
+.docx_qa/
+*.docx
+*.mp4
+*.png
+
